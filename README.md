@@ -3,29 +3,30 @@
 - [x] hack together basic rendering
 - [x] build path
     - [x] link limbs to parent
-- [.] find limb by index
-- [.] find limb by key path
+- [x] find limb by index
+- [x] find limb by key path
 - [x] move toggle indicator to String method on branch
 - [x] show child count on branch 
 - [x] allow toggle indicator to be on left or right of text
 - [ ] design a nicer way of initiating tree
-- [.] branch/tree methods
+- [ ] normalise the api (everything trees)
+- [x] branch/tree methods
     - [x] expand children
     - [x] collapse children
-    - [.] add child
-    - [.] remove child
-- [.] all the tests
-    - [ ] Tree
-        - [ ] Plant
-        - [ ] Find
-        - [ ] FindByIndex
-        - [ ] Render
-    - [.] Branch
+    - [x] add child
+    - [x] remove child
+- [x] all the tests
+    - [x] Tree
+        - [x] Plant
+        - [x] Find
+        - [x] FindByIndex
+        - [x] Render
+    - [x] Branch
         - [x] Path
         - [x] String
         - [x] Toggle
-        - [ ] AddChild
-        - [ ] RemoveChild
+        - [x] AddChild
+        - [x] RemoveChild
         - [x] GrowChildren
         - [x] TrimChildren
     - [x] Leaf

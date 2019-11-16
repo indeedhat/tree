@@ -2,6 +2,7 @@ package tree
 
 import (
 	"bytes"
+	// "fmt"
 	"strings"
 )
 
@@ -39,34 +40,52 @@ func NewTree() *Tree {
 
 // Initialize the tree and attach parent pointers to the limbs
 func (t *Tree) Plant() {
-	if t.DisplayRoot {
-		t.Root.Key = "root"
-	}
-
 	t.plant(t.Root, nil)
 }
 
+func (t *Tree) plant(limb interface{}, parent *Branch) {
+	switch b := limb.(type) {
+	case *Branch:
+		b.tree = t
+		if parent != b.parent {
+			b.parent = parent
+		}
+
+		t.plant(b.Limbs, b)
+
+	case *Leaf:
+		b.parent = parent
+
+	case []Limb:
+		for _, s := range b {
+			t.plant(s, parent)
+		}
+	}
+}
+
 // Find a limb by its key path
-func (t *Tree) Find(keyPath string) *Limb {
+func (t *Tree) Find(keyPath string) Limb {
+	if "" == keyPath {
+		return t.Root
+	}
+
 	return find(t.Root, keyPath)
 }
 
-func find(subject interface{}, keyPath string) *Limb {
+func find(subject interface{}, keyPath string) Limb {
 	switch s := subject.(type) {
-	case Branch:
 	case *Branch:
 		if s.Path() == keyPath {
-			return subject.(*Limb)
+			return subject.(Limb)
 		}
 		return find(s.Limbs, keyPath)
 
-	case Leaf:
 	case *Leaf:
 		if s.Path() == keyPath {
-			return subject.(*Limb)
+			return subject.(Limb)
 		}
 
-	case []interface{}:
+	case []Limb:
 		for _, e := range s {
 			if l := find(e, keyPath); nil != l {
 				return l
@@ -80,7 +99,7 @@ func find(subject interface{}, keyPath string) *Limb {
 // find a limb by its index
 // optionally dont count the children of a closed branch to count
 // against the index
-func (t *Tree) FindByIndex(index int, skipClosed bool) *Limb {
+func (t *Tree) FindByIndex(index int, skipClosed bool) Limb {
 	var subject interface{}
 
 	if t.DisplayRoot {
@@ -93,33 +112,39 @@ func (t *Tree) FindByIndex(index int, skipClosed bool) *Limb {
 	return found
 }
 
-func findByIndex(subject interface{}, index int, skipClosed bool) (*Limb, int) {
+func findByIndex(subject interface{}, index int, skipClosed bool) (Limb, int) {
+	// fmt.Printf("%v - %d\n", subject, index)
+	if index < 0 {
+		return nil, -1
+	}
+
 	switch s := subject.(type) {
-	case Branch:
 	case *Branch:
 		if 0 == index {
-			return subject.(*Limb), 0
+			return subject.(Limb), 0
 		}
 
 		if skipClosed && !s.Open {
-			return nil, index - 1
+			return nil, index
 		}
 
-		return findByIndex(s.Limbs, index-1, skipClosed)
+		return findByIndex(s.Limbs, index, skipClosed)
 
-	case Leaf:
 	case *Leaf:
 		if 0 == index {
-			return subject.(*Limb), 0
+			return subject.(Limb), 0
 		}
 
-		return nil, index - 1
+		return nil, index
 
-	case []interface{}:
-		var found *Limb
+	case []Limb:
+		var found Limb
+		if 0 == index {
+			return s[0], 0
+		}
 
 		for _, e := range s {
-			found, index = findByIndex(e, index, skipClosed)
+			found, index = findByIndex(e, index-1, skipClosed)
 
 			if nil != found {
 				return found, 0
@@ -145,7 +170,6 @@ func (t *Tree) Render() string {
 
 func (t *Tree) render(limb interface{}, depth int) {
 	switch b := limb.(type) {
-	case Branch:
 	case *Branch:
 		t.buffer.WriteString(b.String())
 		t.buffer.WriteRune('\n')
@@ -153,36 +177,16 @@ func (t *Tree) render(limb interface{}, depth int) {
 			t.render(b.Limbs, depth+1)
 		}
 
-	case Leaf:
 	case *Leaf:
 		t.buffer.WriteString(b.String())
 		t.buffer.WriteRune('\n')
 
-	case []interface{}:
+	case []Limb:
 		for _, s := range b {
 			if 0 < depth {
 				t.buffer.WriteString(strings.Repeat(t.Indent, depth))
 			}
 			t.render(s, depth)
-		}
-	}
-}
-
-func (t *Tree) plant(limb interface{}, parent *Branch) {
-	switch b := limb.(type) {
-	case Branch:
-	case *Branch:
-		b.tree = t
-		b.parent = parent
-		t.plant(b.Limbs, b)
-
-	case Leaf:
-	case *Leaf:
-		b.parent = parent
-
-	case []interface{}:
-		for _, s := range b {
-			t.plant(s, parent)
 		}
 	}
 }

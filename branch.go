@@ -6,7 +6,7 @@ import (
 )
 
 type Branch struct {
-	Limbs []interface{}
+	Limbs []Limb
 	Open  bool
 	Key   string
 	Text  string
@@ -56,18 +56,20 @@ func (b *Branch) Toggle() {
 // add a child limb at the given index
 // -1 = append
 func (b *Branch) AddChild(limb Limb, index int) {
-	if -1 == index {
+	if -1 == index || index >= len(b.Limbs) {
 		b.Limbs = append(b.Limbs, limb)
 	} else {
 		rest := b.Limbs[index:]
 		b.Limbs = append(b.Limbs[:index], limb)
 		b.Limbs = append(b.Limbs, rest...)
 	}
+
+	b.tree.plant(limb, b)
 }
 
 // remove a child limb at the given index
 func (b *Branch) RemoveChild(index int) {
-	b.Limbs = append(b.Limbs[:index-1], b.Limbs[index:]...)
+	b.Limbs = append(b.Limbs[:index], b.Limbs[index+1:]...)
 }
 
 // grow self and all child branches
@@ -92,11 +94,10 @@ func pickBranchToggleState(b *Branch, t *Tree) rune {
 
 func toggleLimb(l interface{}, open bool) {
 	switch b := l.(type) {
-	case Branch:
 	case *Branch:
 		b.Open = open
 		toggleLimb(b.Limbs, open)
-	case []interface{}:
+	case []Limb:
 		for _, e := range b {
 			toggleLimb(e, open)
 		}

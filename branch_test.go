@@ -1,7 +1,6 @@
 package tree
 
 import (
-	// "reflect"
 	"testing"
 )
 
@@ -60,7 +59,7 @@ func TestBranchStringWithChildren(t *testing.T) {
 
 	branch := &Branch{
 		Text: "TestBranch",
-		Limbs: []interface{}{
+		Limbs: []Limb{
 			&Leaf{},
 			&Leaf{},
 		},
@@ -80,7 +79,7 @@ func TestBranchStringWithLeftChildCount(t *testing.T) {
 
 	branch := &Branch{
 		Text: "TestBranch",
-		Limbs: []interface{}{
+		Limbs: []Limb{
 			&Leaf{},
 			&Leaf{},
 		},
@@ -161,8 +160,24 @@ func TestBranchGrowChildren(t *testing.T) {
 	}
 }
 
+func TestBranchTrimChildren(t *testing.T) {
+	open := true
+	child := &Branch{Open: open}
+	branch := &Branch{Open: open}
+	branch.Limbs = append(branch.Limbs, child)
+
+	if open != child.Open || open != branch.Open {
+		t.Error("Initial state of tree is not as expected")
+	}
+
+	branch.TrimChildren()
+	if open == branch.Open || open == child.Open {
+		t.Error("Failed to open self or children")
+	}
+}
+
 func TestAddChild(t *testing.T) {
-	expected := []*Leaf{
+	expected := []Limb{
 		&Leaf{},
 		&Leaf{},
 		&Leaf{},
@@ -171,7 +186,7 @@ func TestAddChild(t *testing.T) {
 	}
 
 	branch := &Branch{}
-	branch.Limbs = []interface{}{
+	branch.Limbs = []Limb{
 		expected[1],
 		expected[3],
 	}
@@ -181,19 +196,38 @@ func TestAddChild(t *testing.T) {
 		t.Errorf("failed to add to position 0")
 	}
 
-	// 	branch.AddChild(expected[0], -1)
-	// 	if !reflect.DeepEqual(expected[3], branch.Limbs[3]) {
-	// 		t.Error("failed to add to last position")
-	// 	}
+	branch.AddChild(expected[4], -1)
+	if expected[4] != branch.Limbs[3] {
+		t.Error("failed to add to last position")
+	}
 
-	// 	branch.AddChild(expected[0], 2)
-	// 	if !reflect.DeepEqual(expected[2], branch.Limbs[2]) {
-	// 		t.Error("failed to add to position 0")
-	// 	}
+	branch.AddChild(expected[2], 2)
+	if expected[2] != branch.Limbs[2] {
+		t.Error("failed to add to position 2")
+	}
+}
 
-	// 	for i, _ := range expected {
-	// 		if !reflect.DeepEqual(expected[i], branch.Limbs[i]) {
-	// 			t.Error("final slice does not match expected")
-	// 		}
-	// 	}
+func TestRemoveChild(t *testing.T) {
+	expected := []Limb{
+		&Leaf{},
+		&Leaf{},
+		&Leaf{},
+		&Leaf{},
+		&Leaf{},
+	}
+
+	branch := &Branch{}
+	branch.Limbs = append(branch.Limbs, expected...)
+
+	branch.RemoveChild(2)
+	branch.RemoveChild(0)
+	branch.RemoveChild(2)
+
+	if 2 != len(branch.Limbs) {
+		t.Error("Failed to remove children")
+	}
+
+	if expected[1] != branch.Limbs[0] || expected[3] != branch.Limbs[1] {
+		t.Error("Failed to remove the correct children")
+	}
 }
