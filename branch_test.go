@@ -5,7 +5,7 @@ import (
 )
 
 func TestBranchString(t *testing.T) {
-	expected := "+ TestBranch [0]"
+	expected := "[+] TestBranch (0)"
 	tree := NewTree()
 
 	branch := &Branch{
@@ -21,7 +21,7 @@ func TestBranchString(t *testing.T) {
 }
 
 func TestBranchEmptyString(t *testing.T) {
-	expected := "+  [0]"
+	expected := "[+]  (0)"
 	tree := NewTree()
 
 	branch := &Branch{
@@ -37,7 +37,7 @@ func TestBranchEmptyString(t *testing.T) {
 }
 
 func TestBranchStringOpen(t *testing.T) {
-	expected := "- TestBranch [0]"
+	expected := "[-] TestBranch (0)"
 	tree := NewTree()
 
 	branch := &Branch{
@@ -54,7 +54,7 @@ func TestBranchStringOpen(t *testing.T) {
 }
 
 func TestBranchStringWithChildren(t *testing.T) {
-	expected := "+ TestBranch [2]"
+	expected := "[+] TestBranch (2)"
 	tree := NewTree()
 
 	branch := &Branch{
@@ -74,7 +74,7 @@ func TestBranchStringWithChildren(t *testing.T) {
 }
 
 func TestBranchStringWithLeftChildCount(t *testing.T) {
-	expected := "+ [2] TestBranch"
+	expected := "[+] (2) TestBranch"
 	tree := NewTree()
 
 	branch := &Branch{

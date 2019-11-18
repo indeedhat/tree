@@ -12,9 +12,8 @@ type Limb interface {
 }
 
 type Tree struct {
-	GrowMarker  rune
-	TrimMarker  rune
-	Indent      string
+	GrowMarker  string
+	TrimMarker  string
 	Root        *Branch
 	CountOnLeft bool
 	DisplayRoot bool
@@ -27,7 +26,6 @@ func NewTree() *Tree {
 	tree := &Tree{
 		TrimMarker: TRIM_MARKER,
 		GrowMarker: GROW_MARKER,
-		Indent:     INDENT,
 		Root: &Branch{
 			Key:  "",
 			Text: "root",
@@ -182,9 +180,15 @@ func (t *Tree) render(limb interface{}, depth int) {
 		t.buffer.WriteRune('\n')
 
 	case []Limb:
-		for _, s := range b {
+		for i, s := range b {
 			if 0 < depth {
-				t.buffer.WriteString(strings.Repeat(t.Indent, depth))
+				t.buffer.WriteString(strings.Repeat(INDENT, depth-1))
+				if len(b) == i+1 {
+					t.buffer.WriteString(INDENT_END)
+				} else {
+					t.buffer.WriteString(INDENT_MIDDLE)
+				}
+
 			}
 			t.render(s, depth)
 		}

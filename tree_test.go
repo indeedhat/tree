@@ -50,9 +50,9 @@ func TestMain(m *testing.M) {
 
 func TestTree(t *testing.T) {
 	expected := `key 1
-- key 2 [3]
+[-] key 2 (3)
   Key 3
-  + key 4 [1]
+  [+] key 4 (1)
   key 6
 `
 	if tree.Render() != expected {
@@ -61,11 +61,11 @@ func TestTree(t *testing.T) {
 }
 
 func TestTreeWithRoot(t *testing.T) {
-	expected := `- root [2]
+	expected := `[-] root (2)
   key 1
-  - key 2 [3]
+  [-] key 2 (3)
     Key 3
-    + key 4 [1]
+    [+] key 4 (1)
     key 6
 `
 
@@ -76,35 +76,35 @@ func TestTreeWithRoot(t *testing.T) {
 }
 
 func TestTreeWithLeftCount(t *testing.T) {
-	expected := `- [2] root
+	expected := `[-] (2) root
   key 1
-  - [3] key 2
+  [-] (3) key 2
     Key 3
-    + [1] key 4
+    [+] (1) key 4
     key 6
 `
 
 	tree.DisplayRoot = true
 	tree.CountOnLeft = true
 	if tree.Render() != expected {
+		println(tree.Render())
 		t.Error("Failed to render left count tree")
 	}
 }
 
 func TestTreeWithCustomCharacters(t *testing.T) {
-	expected := `^ [2] root
+	expected := `^ (2) root
 ....key 1
-....^ [3] key 2
+....^ (3) key 2
 ........Key 3
-........v [1] key 4
+........v (1) key 4
 ........key 6
 `
 
 	tree.DisplayRoot = true
 	tree.CountOnLeft = true
-	tree.TrimMarker = '^'
-	tree.GrowMarker = 'v'
-	tree.Indent = "...."
+	tree.TrimMarker = "^"
+	tree.GrowMarker = "v"
 
 	if tree.Render() != expected {
 		t.Error("Failed to render root tree")

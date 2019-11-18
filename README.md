@@ -10,6 +10,7 @@
 - [x] allow toggle indicator to be on left or right of text
 - [ ] design a nicer way of initiating tree
 - [ ] normalise the api (everything trees)
+- [ ] pull render element out into its own loop instead of building in String method
 - [x] branch/tree methods
     - [x] expand children
     - [x] collapse children

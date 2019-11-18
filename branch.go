@@ -34,15 +34,15 @@ func (b *Branch) Path() string {
 func (b *Branch) String() string {
 	var buffer bytes.Buffer
 
-	buffer.WriteRune(pickBranchToggleState(b, b.tree))
+	buffer.WriteString(pickBranchToggleState(b, b.tree))
 	buffer.WriteRune(' ')
 	if b.tree.CountOnLeft {
-		buffer.WriteString(fmt.Sprintf("[%d] ", len(b.Limbs)))
+		buffer.WriteString(fmt.Sprintf("(%d) ", len(b.Limbs)))
 	}
 
 	buffer.WriteString(b.Text)
 	if !b.tree.CountOnLeft {
-		buffer.WriteString(fmt.Sprintf(" [%d]", len(b.Limbs)))
+		buffer.WriteString(fmt.Sprintf(" (%d)", len(b.Limbs)))
 	}
 
 	return buffer.String()
@@ -84,7 +84,7 @@ func (b *Branch) TrimChildren() {
 	toggleLimb(b.Limbs, false)
 }
 
-func pickBranchToggleState(b *Branch, t *Tree) rune {
+func pickBranchToggleState(b *Branch, t *Tree) string {
 	if b.Open {
 		return t.TrimMarker
 	}
