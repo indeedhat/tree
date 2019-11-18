@@ -8,6 +8,6 @@ const (
 
 	INDENT_DASH    = "───"
 	INDENT_VERICAL = " │ "
-	INDENT_MIDDLE  = " ├ "
-	INDENT_END     = " └ "
+	INDENT_MIDDLE  = " ├─"
+	INDENT_END     = " └─"
 )
