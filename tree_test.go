@@ -160,8 +160,26 @@ func TestFindByIndexSkipHidden(t *testing.T) {
 	}
 }
 
+func TestFindByIndexSkipHiddenNoRoot(t *testing.T) {
+	tree.DisplayRoot = false
+
+	leaf := tree.Root.Limbs[1].(*Branch).Limbs[2]
+	if tree.FindByIndex(5, true) != leaf {
+		t.Errorf("Failed to find limb when skipping closed branches %v - %v", leaf, tree.FindByIndex(5, true))
+	}
+}
+
 func TestFindByIndexIncludeHidden(t *testing.T) {
 	tree.DisplayRoot = true
+
+	leaf := tree.Root.Limbs[1].(*Branch).Limbs[1].(*Branch).Limbs[0]
+	if tree.FindByIndex(5, false) != leaf {
+		t.Errorf("Failed to find limb when including closed branches %v - %v", leaf, tree.FindByIndex(5, false))
+	}
+}
+
+func TestFindByIndexIncludeHiddenNoRoot(t *testing.T) {
+	tree.DisplayRoot = false
 
 	leaf := tree.Root.Limbs[1].(*Branch).Limbs[1].(*Branch).Limbs[0]
 	if tree.FindByIndex(5, false) != leaf {
