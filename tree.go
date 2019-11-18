@@ -138,7 +138,7 @@ func findByIndex(subject interface{}, index int, skipClosed bool) (Limb, int) {
 	case []Limb:
 		var found Limb
 		if 0 == index {
-			return s[0], 0
+			index = 1
 		}
 
 		for _, e := range s {
