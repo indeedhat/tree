@@ -24,8 +24,9 @@ type Tree struct {
 // Create a new tree with the default values
 func NewTree() *Tree {
 	tree := &Tree{
-		TrimMarker: TRIM_MARKER,
-		GrowMarker: GROW_MARKER,
+		TrimMarker:  TRIM_MARKER,
+		GrowMarker:  GROW_MARKER,
+		DisplayRoot: true,
 		Root: &Branch{
 			Key:  "",
 			Text: "root",
