@@ -6,6 +6,7 @@ const (
 
 	INDENT = " │ "
 
+	INDENT_BLANK   = "   "
 	INDENT_DASH    = "───"
 	INDENT_VERICAL = " │ "
 	INDENT_MIDDLE  = " ├─"

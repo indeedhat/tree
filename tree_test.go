@@ -1,7 +1,7 @@
 package tree
 
 import (
-	// "fmt"
+	"fmt"
 	"os"
 	"testing"
 )
@@ -26,7 +26,7 @@ func TestMain(m *testing.M) {
 				&Branch{
 					Key:  "k4",
 					Text: "key 4",
-					Open: false,
+					Open: true,
 					Limbs: []Limb{
 						&Leaf{
 							Key:  "k5",
@@ -48,17 +48,18 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
-// func TestTree(t *testing.T) {
-// 	expected := `key 1
-// [-] key 2 (3)
-//   Key 3
-//   [+] key 4 (1)
-//   key 6
-// `
-// 	if tree.Render() != expected {
-// 		t.Error("Failed to render standard tree")
-// 	}
-// }
+func TestTree(t *testing.T) {
+	expected := `key 1
+[-] key 2 (3)
+  Key 3
+  [+] key 4 (1)
+  key 6
+`
+	if tree.Render() != expected {
+		fmt.Println(tree.Render())
+		t.Error("Failed to render standard tree")
+	}
+}
 
 // func TestTreeWithRoot(t *testing.T) {
 // 	expected := `[-] root (2)

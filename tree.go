@@ -3,7 +3,7 @@ package tree
 import (
 	"bytes"
 	// "fmt"
-	"strings"
+	// "strings"
 )
 
 type Limb interface {
@@ -159,21 +159,25 @@ func (t *Tree) Render() string {
 	t.buffer = bytes.NewBuffer([]byte{})
 
 	if t.DisplayRoot {
-		t.render(t.Root, 0)
+		t.render(t.Root, "", false)
 	} else {
-		t.render(t.Root.Limbs, 0)
+		t.render(t.Root.Limbs, "", true)
 	}
 
 	return t.buffer.String()
 }
 
-func (t *Tree) render(limb interface{}, depth int) {
+func (t *Tree) render(limb interface{}, prefix string, hasRemaining bool) {
 	switch b := limb.(type) {
 	case *Branch:
 		t.buffer.WriteString(b.String())
 		t.buffer.WriteRune('\n')
 		if b.Open {
-			t.render(b.Limbs, depth+1)
+			if hasRemaining {
+				t.render(b.Limbs, prefix+INDENT, hasRemaining)
+			} else {
+				t.render(b.Limbs, prefix+INDENT_BLANK, hasRemaining)
+			}
 		}
 
 	case *Leaf:
@@ -182,8 +186,8 @@ func (t *Tree) render(limb interface{}, depth int) {
 
 	case []Limb:
 		for i, s := range b {
-			if 0 < depth {
-				t.buffer.WriteString(strings.Repeat(INDENT, depth-1))
+			if "" != prefix {
+				t.buffer.WriteString(prefix[3:])
 				if len(b) == i+1 {
 					t.buffer.WriteString(INDENT_END)
 				} else {
@@ -191,7 +195,7 @@ func (t *Tree) render(limb interface{}, depth int) {
 				}
 
 			}
-			t.render(s, depth)
+			t.render(s, prefix, i < len(b)-1)
 		}
 	}
 }
