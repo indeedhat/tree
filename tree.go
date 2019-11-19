@@ -187,7 +187,7 @@ func (t *Tree) render(limb interface{}, prefix string, hasRemaining bool) {
 	case []Limb:
 		for i, s := range b {
 			if "" != prefix {
-				t.buffer.WriteString(prefix[3:])
+				t.buffer.WriteString(prefix[2:])
 				if len(b) == i+1 {
 					t.buffer.WriteString(INDENT_END)
 				} else {
