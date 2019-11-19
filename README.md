@@ -11,7 +11,7 @@
 - [ ] design a nicer way of initiating tree
 - [ ] normalise the api (everything trees)
 - [.] pull render element out into its own loop instead of building in String method
-- [ ] fix bug with find by index (show vs hide root)
+- [x] fix bug with find by index (show vs hide root)
 - [x] branch/tree methods
     - [x] expand children
     - [x] collapse children

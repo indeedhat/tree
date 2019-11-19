@@ -104,6 +104,7 @@ func (t *Tree) FindByIndex(index int, skipClosed bool) Limb {
 		subject = t.Root
 	} else {
 		subject = t.Root.Limbs
+		index += 1
 	}
 
 	found, _ := findByIndex(subject, index, skipClosed)
