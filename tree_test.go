@@ -1,7 +1,6 @@
 package tree
 
 import (
-	"fmt"
 	"os"
 	"testing"
 )
@@ -32,13 +31,47 @@ func TestMain(m *testing.M) {
 							Key:  "k5",
 							Text: "key 5",
 						},
+						&Leaf{
+							Key:  "k6",
+							Text: "key 6",
+						},
+						&Branch{
+							Key:  "k9",
+							Text: "key 9",
+							Open: true,
+							Limbs: []Limb{
+								&Leaf{
+									Key:  "k10",
+									Text: "key 10",
+								},
+								&Leaf{
+									Key:  "k11",
+									Text: "key 11",
+								},
+								&Branch{
+									Key:  "k12",
+									Text: "key 12",
+									Open: false,
+									Limbs: []Limb{
+										&Leaf{
+											Key:  "k13",
+											Text: "key 13",
+										},
+									},
+								},
+							},
+						},
 					},
 				},
 				&Leaf{
-					Key:  "k6",
-					Text: "key 6",
+					Key:  "k7",
+					Text: "key 7",
 				},
 			},
+		},
+		&Leaf{
+			Key:  "k8",
+			Text: "key 8",
 		},
 	}
 
@@ -49,68 +82,95 @@ func TestMain(m *testing.M) {
 }
 
 func TestTree(t *testing.T) {
-	expected := `key 1
-[-] key 2 (3)
-  Key 3
-  [+] key 4 (1)
-  key 6
+	expected := `[-] root (3)
+ ├─ key 1
+ ├─ [-] key 2 (3)
+ │   ├─ Key 3
+ │   ├─ [-] key 4 (3)
+ │   │   ├─ key 5
+ │   │   ├─ key 6
+ │   │   └─ [-] key 9 (3)
+ │   │       ├─ key 10
+ │   │       ├─ key 11
+ │   │       └─ [+] key 12 (1)
+ │   └─ key 7
+ └─ key 8
 `
+	tree.DisplayRoot = true
 	if tree.Render() != expected {
-		fmt.Println(tree.Render())
 		t.Error("Failed to render standard tree")
 	}
 }
 
-// func TestTreeWithRoot(t *testing.T) {
-// 	expected := `[-] root (2)
-//   key 1
-//   [-] key 2 (3)
-//     Key 3
-//     [+] key 4 (1)
-//     key 6
-// `
+func TestTreeNoRoot(t *testing.T) {
+	expected := ` ├─ key 1
+ ├─ [-] key 2 (3)
+ │   ├─ Key 3
+ │   ├─ [-] key 4 (3)
+ │   │   ├─ key 5
+ │   │   ├─ key 6
+ │   │   └─ [-] key 9 (3)
+ │   │       ├─ key 10
+ │   │       ├─ key 11
+ │   │       └─ [+] key 12 (1)
+ │   └─ key 7
+ └─ key 8
+`
 
-// 	tree.DisplayRoot = true
-// 	if tree.Render() != expected {
-// 		t.Error("Failed to render root tree")
-// 	}
-// }
+	tree.DisplayRoot = false
+	if tree.Render() != expected {
+		t.Error("Failed to render no root tree")
+	}
+}
 
-// func TestTreeWithLeftCount(t *testing.T) {
-// 	expected := `[-] (2) root
-//   key 1
-//   [-] (3) key 2
-//     Key 3
-//     [+] (1) key 4
-//     key 6
-// `
+func TestTreeWithLeftCount(t *testing.T) {
+	expected := `[-] (3) root
+ ├─ key 1
+ ├─ [-] (3) key 2
+ │   ├─ Key 3
+ │   ├─ [-] (3) key 4
+ │   │   ├─ key 5
+ │   │   ├─ key 6
+ │   │   └─ [-] (3) key 9
+ │   │       ├─ key 10
+ │   │       ├─ key 11
+ │   │       └─ [+] (1) key 12
+ │   └─ key 7
+ └─ key 8
+`
 
-// 	tree.DisplayRoot = true
-// 	tree.CountOnLeft = true
-// 	if tree.Render() != expected {
-// 		println(tree.Render())
-// 		t.Error("Failed to render left count tree")
-// 	}
-// }
+	tree.DisplayRoot = true
+	tree.CountOnLeft = true
+	if tree.Render() != expected {
+		t.Error("Failed to render left count tree")
+	}
+}
 
-// func TestTreeWithCustomCharacters(t *testing.T) {
-// 	expected := `^ (2) root
-// ....key 1
-// ....^ (3) key 2
-// ........Key 3
-// ........v (1) key 4
-// ........key 6
-// `
+func TestTreeWithCustomCharacters(t *testing.T) {
+	expected := `^ root (3)
+ ├─ key 1
+ ├─ ^ key 2 (3)
+ │   ├─ Key 3
+ │   ├─ ^ key 4 (3)
+ │   │   ├─ key 5
+ │   │   ├─ key 6
+ │   │   └─ ^ key 9 (3)
+ │   │       ├─ key 10
+ │   │       ├─ key 11
+ │   │       └─ v key 12 (1)
+ │   └─ key 7
+ └─ key 8
+`
 
-// 	tree.DisplayRoot = true
-// 	tree.CountOnLeft = true
-// 	tree.TrimMarker = "^"
-// 	tree.GrowMarker = "v"
+	tree.DisplayRoot = true
+	tree.TrimMarker = "^"
+	tree.GrowMarker = "v"
+	tree.CountOnLeft = false
 
-// 	if tree.Render() != expected {
-// 		t.Error("Failed to render root tree")
-// 	}
-// }
+	if tree.Render() != expected {
+		t.Error("Failed to render custom marker tree tree")
+	}
+}
 
 func TestFindBranch(t *testing.T) {
 	branch, ok := tree.Root.Limbs[1].(*Branch)
@@ -156,8 +216,8 @@ func TestFindByIndexSkipHidden(t *testing.T) {
 	tree.DisplayRoot = true
 
 	leaf := tree.Root.Limbs[1].(*Branch).Limbs[2]
-	if tree.FindByIndex(5, true) != leaf {
-		t.Errorf("Failed to find limb when skipping closed branches %v - %v", leaf, tree.FindByIndex(5, true))
+	if tree.FindByIndex(11, true) != leaf {
+		t.Errorf("Failed to find limb when skipping closed branches %v - %v", leaf, tree.FindByIndex(11, true))
 	}
 }
 
@@ -165,31 +225,31 @@ func TestFindByIndexSkipHiddenNoRoot(t *testing.T) {
 	tree.DisplayRoot = false
 
 	leaf := tree.Root.Limbs[1].(*Branch).Limbs[2]
-	if tree.FindByIndex(4, true) != leaf {
-		t.Errorf("Failed to find limb when skipping closed branches %v - %v", leaf, tree.FindByIndex(5, true))
+	if tree.FindByIndex(10, true) != leaf {
+		t.Errorf("Failed to find limb when skipping closed branches %v - %v", leaf, tree.FindByIndex(10, true))
 	}
 }
 
 func TestFindByIndexIncludeHidden(t *testing.T) {
 	tree.DisplayRoot = true
 
-	leaf := tree.Root.Limbs[1].(*Branch).Limbs[1].(*Branch).Limbs[0]
-	if tree.FindByIndex(5, false) != leaf {
-		t.Errorf("Failed to find limb when including closed branches %v - %v", leaf, tree.FindByIndex(5, false))
+	leaf := tree.Root.Limbs[1].(*Branch).Limbs[1].(*Branch).Limbs[2].(*Branch).Limbs[2].(*Branch).Limbs[0]
+	if tree.FindByIndex(11, false) != leaf {
+		t.Errorf("Failed to find limb when including closed branches %v - %v", leaf, tree.FindByIndex(11, false))
 	}
 }
 
 func TestFindByIndexIncludeHiddenNoRoot(t *testing.T) {
 	tree.DisplayRoot = false
 
-	leaf := tree.Root.Limbs[1].(*Branch).Limbs[1].(*Branch).Limbs[0]
-	if tree.FindByIndex(4, false) != leaf {
-		t.Errorf("Failed to find limb when including closed branches %v - %v", leaf, tree.FindByIndex(5, false))
+	leaf := tree.Root.Limbs[1].(*Branch).Limbs[1].(*Branch).Limbs[2].(*Branch).Limbs[2].(*Branch).Limbs[0]
+	if tree.FindByIndex(10, false) != leaf {
+		t.Errorf("Failed to find limb when including closed branches %v - %v", leaf, tree.FindByIndex(10, false))
 	}
 }
 
 func TestDoesntFindBadIndex(t *testing.T) {
-	if nil != tree.FindByIndex(10, false) {
+	if nil != tree.FindByIndex(30, false) {
 		t.Error("Find retuned a value for an invalid index")
 	}
 }

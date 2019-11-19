@@ -112,10 +112,6 @@ func (t *Tree) FindByIndex(index int, skipClosed bool) Limb {
 }
 
 func findByIndex(subject interface{}, index int, skipClosed bool) (Limb, int) {
-	// fmt.Printf("%v - %d\n", subject, index)
-	if index < 0 {
-		return nil, -1
-	}
 
 	switch s := subject.(type) {
 	case *Branch:
@@ -138,10 +134,6 @@ func findByIndex(subject interface{}, index int, skipClosed bool) (Limb, int) {
 
 	case []Limb:
 		var found Limb
-		if 0 == index {
-			index = 1
-		}
-
 		for _, e := range s {
 			found, index = findByIndex(e, index-1, skipClosed)
 
@@ -151,7 +143,7 @@ func findByIndex(subject interface{}, index int, skipClosed bool) (Limb, int) {
 		}
 	}
 
-	return nil, -1
+	return nil, index
 }
 
 // Render the tree to string
@@ -161,7 +153,7 @@ func (t *Tree) Render() string {
 	if t.DisplayRoot {
 		t.render(t.Root, "", false)
 	} else {
-		t.render(t.Root.Limbs, "", true)
+		t.render(t.Root.Limbs, INDENT_BLANK, 1 < len(t.Root.Limbs))
 	}
 
 	return t.buffer.String()
@@ -187,7 +179,7 @@ func (t *Tree) render(limb interface{}, prefix string, hasRemaining bool) {
 	case []Limb:
 		for i, s := range b {
 			if "" != prefix {
-				t.buffer.WriteString(prefix[2:])
+				t.buffer.WriteString(prefix[4:])
 				if len(b) == i+1 {
 					t.buffer.WriteString(INDENT_END)
 				} else {
