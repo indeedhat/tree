@@ -96,28 +96,30 @@ func TestTree(t *testing.T) {
  │   └─ key 7
  └─ key 8
 `
-	tree.DisplayRoot = true
 	if tree.Render() != expected {
 		t.Error("Failed to render standard tree")
 	}
 }
 
 func TestTreeNoRoot(t *testing.T) {
-	expected := ` ├─ key 1
- ├─ [-] key 2 (3)
- │   ├─ Key 3
- │   ├─ [-] key 4 (3)
- │   │   ├─ key 5
- │   │   ├─ key 6
- │   │   └─ [-] key 9 (3)
- │   │       ├─ key 10
- │   │       ├─ key 11
- │   │       └─ [+] key 12 (1)
- │   └─ key 7
- └─ key 8
+	expected := `key 1
+[-] key 2 (3)
+ ├─ Key 3
+ ├─ [-] key 4 (3)
+ │   ├─ key 5
+ │   ├─ key 6
+ │   └─ [-] key 9 (3)
+ │       ├─ key 10
+ │       ├─ key 11
+ │       └─ [+] key 12 (1)
+ └─ key 7
+key 8
 `
 
-	tree.DisplayRoot = false
+	r := DefaultRenderer()
+	r.DisplayRoot = false
+	tree.Renderer = r
+
 	if tree.Render() != expected {
 		t.Error("Failed to render no root tree")
 	}
@@ -139,36 +141,34 @@ func TestTreeWithLeftCount(t *testing.T) {
  └─ key 8
 `
 
-	tree.DisplayRoot = true
-	tree.CountOnLeft = true
+	r := DefaultRenderer()
+	r.Count.Position = Left
+	tree.Renderer = r
+
 	if tree.Render() != expected {
 		t.Error("Failed to render left count tree")
 	}
 }
 
-func TestTreeWithCustomCharacters(t *testing.T) {
-	expected := `^ root (3)
- ├─ key 1
- ├─ ^ key 2 (3)
- │   ├─ Key 3
- │   ├─ ^ key 4 (3)
- │   │   ├─ key 5
- │   │   ├─ key 6
- │   │   └─ ^ key 9 (3)
- │   │       ├─ key 10
- │   │       ├─ key 11
- │   │       └─ v key 12 (1)
- │   └─ key 7
- └─ key 8
+func TestTreeWithMinimalRenderer(t *testing.T) {
+	expected := `key 1
+- key 2
+  Key 3
+  - key 4
+    key 5
+    key 6
+    - key 9
+      key 10
+      key 11
+      + key 12
+  key 7
+key 8
 `
 
-	tree.DisplayRoot = true
-	tree.TrimMarker = "^"
-	tree.GrowMarker = "v"
-	tree.CountOnLeft = false
+	tree.Renderer = MinimalRenderer()
 
 	if tree.Render() != expected {
-		t.Error("Failed to render custom marker tree tree")
+		t.Error("Failed to render using minimal renderer")
 	}
 }
 
@@ -199,21 +199,25 @@ func TestDoesntFindBadPath(t *testing.T) {
 }
 
 func TestFindByIndexNoRoot(t *testing.T) {
-	tree.DisplayRoot = false
+	r := DefaultRenderer()
+	r.DisplayRoot = false
+	tree.Renderer = r
+
 	if tree.FindByIndex(0, false) != tree.Root.Limbs[0] {
 		t.Error("Failed to find limb by index with hidden root")
 	}
 }
 
 func TestFindByIndexWithRoot(t *testing.T) {
-	tree.DisplayRoot = true
+	tree.Renderer = DefaultRenderer()
+
 	if tree.FindByIndex(0, false) != tree.Root {
 		t.Error("Failed to find limb by index when index is visible")
 	}
 }
 
 func TestFindByIndexSkipHidden(t *testing.T) {
-	tree.DisplayRoot = true
+	tree.Renderer = DefaultRenderer()
 
 	leaf := tree.Root.Limbs[1].(*Branch).Limbs[2]
 	if tree.FindByIndex(11, true) != leaf {
@@ -222,7 +226,9 @@ func TestFindByIndexSkipHidden(t *testing.T) {
 }
 
 func TestFindByIndexSkipHiddenNoRoot(t *testing.T) {
-	tree.DisplayRoot = false
+	r := DefaultRenderer()
+	r.DisplayRoot = false
+	tree.Renderer = r
 
 	leaf := tree.Root.Limbs[1].(*Branch).Limbs[2]
 	if tree.FindByIndex(10, true) != leaf {
@@ -231,7 +237,7 @@ func TestFindByIndexSkipHiddenNoRoot(t *testing.T) {
 }
 
 func TestFindByIndexIncludeHidden(t *testing.T) {
-	tree.DisplayRoot = true
+	tree.Renderer = DefaultRenderer()
 
 	leaf := tree.Root.Limbs[1].(*Branch).Limbs[1].(*Branch).Limbs[2].(*Branch).Limbs[2].(*Branch).Limbs[0]
 	if tree.FindByIndex(11, false) != leaf {
@@ -240,7 +246,9 @@ func TestFindByIndexIncludeHidden(t *testing.T) {
 }
 
 func TestFindByIndexIncludeHiddenNoRoot(t *testing.T) {
-	tree.DisplayRoot = false
+	r := DefaultRenderer()
+	r.DisplayRoot = false
+	tree.Renderer = r
 
 	leaf := tree.Root.Limbs[1].(*Branch).Limbs[1].(*Branch).Limbs[2].(*Branch).Limbs[2].(*Branch).Limbs[0]
 	if tree.FindByIndex(10, false) != leaf {

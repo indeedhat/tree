@@ -86,7 +86,50 @@ func TestBranchStringWithLeftChildCount(t *testing.T) {
 	}
 
 	tree.Root.Limbs = append(tree.Root.Limbs, branch)
-	tree.CountOnLeft = true
+	tree.Renderer.Count.Position = Left
+	tree.Plant()
+
+	if branch.String() != expected {
+		t.Errorf("Branch string method returned the wrong val: %s - %s", expected, branch.String())
+	}
+}
+
+func TestBranchStringWithNoCount(t *testing.T) {
+	expected := "[+] TestBranch"
+	tree := NewTree()
+
+	branch := &Branch{
+		Text: "TestBranch",
+		Limbs: []Limb{
+			&Leaf{},
+			&Leaf{},
+		},
+	}
+
+	tree.Root.Limbs = append(tree.Root.Limbs, branch)
+	tree.Renderer.Count.Visible = false
+	tree.Plant()
+
+	if branch.String() != expected {
+		t.Errorf("Branch string method returned the wrong val: %s - %s", expected, branch.String())
+	}
+}
+
+func TestBranchStringWithToggleOnRight(t *testing.T) {
+	expected := "TestBranch [+]"
+	tree := NewTree()
+
+	tree.Renderer.Toggle.Position = Right
+	branch := &Branch{
+		Text: "TestBranch",
+		Limbs: []Limb{
+			&Leaf{},
+			&Leaf{},
+		},
+	}
+
+	tree.Root.Limbs = append(tree.Root.Limbs, branch)
+	tree.Renderer.Count.Visible = false
 	tree.Plant()
 
 	if branch.String() != expected {

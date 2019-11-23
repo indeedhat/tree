@@ -34,15 +34,26 @@ func (b *Branch) Path() string {
 func (b *Branch) String() string {
 	var buffer bytes.Buffer
 
-	buffer.WriteString(pickBranchToggleState(b, b.tree))
-	buffer.WriteRune(' ')
-	if b.tree.CountOnLeft {
-		buffer.WriteString(fmt.Sprintf("(%d) ", len(b.Limbs)))
+	if Left == b.tree.Renderer.Toggle.Position {
+		buffer.WriteString(pickBranchToggleState(b, b.tree))
+		buffer.WriteRune(' ')
+	}
+
+	if b.tree.Renderer.Count.Visible && Left == b.tree.Renderer.Count.Position {
+		buffer.WriteString(fmt.Sprintf(b.tree.Renderer.Count.Template, len(b.Limbs)))
+		buffer.WriteRune(' ')
 	}
 
 	buffer.WriteString(b.Text)
-	if !b.tree.CountOnLeft {
-		buffer.WriteString(fmt.Sprintf(" (%d)", len(b.Limbs)))
+
+	if Right == b.tree.Renderer.Toggle.Position {
+		buffer.WriteRune(' ')
+		buffer.WriteString(pickBranchToggleState(b, b.tree))
+	}
+
+	if b.tree.Renderer.Count.Visible && Right == b.tree.Renderer.Count.Position {
+		buffer.WriteRune(' ')
+		buffer.WriteString(fmt.Sprintf(b.tree.Renderer.Count.Template, len(b.Limbs)))
 	}
 
 	return buffer.String()
@@ -86,10 +97,10 @@ func (b *Branch) TrimChildren() {
 
 func pickBranchToggleState(b *Branch, t *Tree) string {
 	if b.Open {
-		return t.TrimMarker
+		return t.Renderer.Toggle.Close
 	}
 
-	return t.GrowMarker
+	return t.Renderer.Toggle.Open
 }
 
 func toggleLimb(l interface{}, open bool) {

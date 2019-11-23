@@ -12,21 +12,14 @@ type Limb interface {
 }
 
 type Tree struct {
-	GrowMarker  string
-	TrimMarker  string
-	Root        *Branch
-	CountOnLeft bool
-	DisplayRoot bool
-
-	buffer *bytes.Buffer
+	Root     *Branch
+	Renderer *Renderer
 }
 
 // Create a new tree with the default values
 func NewTree() *Tree {
 	tree := &Tree{
-		TrimMarker:  TRIM_MARKER,
-		GrowMarker:  GROW_MARKER,
-		DisplayRoot: true,
+		Renderer: DefaultRenderer(),
 		Root: &Branch{
 			Key:  "",
 			Text: "root",
@@ -101,7 +94,7 @@ func find(subject interface{}, keyPath string) Limb {
 func (t *Tree) FindByIndex(index int, skipClosed bool) Limb {
 	var subject interface{}
 
-	if t.DisplayRoot {
+	if t.Renderer.DisplayRoot {
 		subject = t.Root
 	} else {
 		subject = t.Root.Limbs
@@ -149,46 +142,13 @@ func findByIndex(subject interface{}, index int, skipClosed bool) (Limb, int) {
 
 // Render the tree to string
 func (t *Tree) Render() string {
-	t.buffer = bytes.NewBuffer([]byte{})
+	t.Renderer.buffer = bytes.NewBuffer([]byte{})
 
-	if t.DisplayRoot {
-		t.render(t.Root, "", false)
+	if t.Renderer.DisplayRoot {
+		t.Renderer.render(t.Root, "", 0, false)
 	} else {
-		t.render(t.Root.Limbs, INDENT_BLANK, 1 < len(t.Root.Limbs))
+		t.Renderer.render(t.Root.Limbs, "", 0, 1 <= len(t.Root.Limbs))
 	}
 
-	return t.buffer.String()
-}
-
-func (t *Tree) render(limb interface{}, prefix string, hasRemaining bool) {
-	switch b := limb.(type) {
-	case *Branch:
-		t.buffer.WriteString(b.String())
-		t.buffer.WriteRune('\n')
-		if b.Open {
-			if hasRemaining {
-				t.render(b.Limbs, prefix+INDENT, hasRemaining)
-			} else {
-				t.render(b.Limbs, prefix+INDENT_BLANK, hasRemaining)
-			}
-		}
-
-	case *Leaf:
-		t.buffer.WriteString(b.String())
-		t.buffer.WriteRune('\n')
-
-	case []Limb:
-		for i, s := range b {
-			if "" != prefix {
-				t.buffer.WriteString(prefix[4:])
-				if len(b) == i+1 {
-					t.buffer.WriteString(INDENT_END)
-				} else {
-					t.buffer.WriteString(INDENT_MIDDLE)
-				}
-
-			}
-			t.render(s, prefix, i < len(b)-1)
-		}
-	}
+	return t.Renderer.buffer.String()
 }
