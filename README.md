@@ -1,4 +1,6 @@
 # Tree
+[![Actions Status](https://github.com/indeedhat/tree/workflows/Go/badge.svg)](https://github.com/indeedhat/tree/actions)
+
 
 - [x] hack together basic rendering
 - [x] build path
