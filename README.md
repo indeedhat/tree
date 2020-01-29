@@ -1,6 +1,6 @@
 # Tree
 [![Actions Status](https://github.com/indeedhat/tree/workflows/Go/badge.svg)](https://github.com/indeedhat/tree/actions)
-
+[![Go Report Card](https://goreportcard.com/badge/github.com/indeedhat/arg)](https://goreportcard.com/report/github.com/indeedhat/arg)
 
 - [x] hack together basic rendering
 - [x] build path
